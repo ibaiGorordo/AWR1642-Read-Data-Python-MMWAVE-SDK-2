@@ -2,13 +2,11 @@
 import serial
 import time
 import numpy as np
-import pandas as pd
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtGui
 
 # Change the configuration file name
 configFileName = '1642config.cfg'
-
 CLIport = {}
 Dataport = {}
 
