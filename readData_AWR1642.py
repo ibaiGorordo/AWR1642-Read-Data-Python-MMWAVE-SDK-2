@@ -313,6 +313,8 @@ win = pg.GraphicsWindow(title="2D scatter plot")
 p = win.addPlot()
 p.setXRange(-0.5,0.5)
 p.setYRange(0,1.5)
+p.setLabel('left',text = 'Y position (m)')
+p.setLabel('bottom', text= 'X position (m)')
 s = p.plot([],[],pen=None,symbol='o')
     
    
