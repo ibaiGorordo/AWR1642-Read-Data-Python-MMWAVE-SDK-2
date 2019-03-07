@@ -1,4 +1,4 @@
-# AWR1642 Read Data (Python)
+# AWR1642 Read Data (Python 3)
 
 Python program to read and plot the data in real time from the **AWR1642** and **IWR1642** mmWave radar boards (Texas Instruments). The program has been tested with Windows and Raspberry Pi and is based on the Matlab demo from Texas Instruments.
 
