@@ -57,11 +57,11 @@ def parseConfigFile(configFileName):
         
         # Get the information about the profile configuration
         if "profileCfg" in splitWords[0]:
-            startFreq = int(splitWords[2])
+            startFreq = int(float(splitWords[2]))
             idleTime = int(splitWords[3])
-            rampEndTime = int(splitWords[5]);
-            freqSlopeConst = int(splitWords[8]);
-            numAdcSamples = int(splitWords[10]);
+            rampEndTime = float(splitWords[5])
+            freqSlopeConst = float(splitWords[8])
+            numAdcSamples = int(splitWords[10])
             numAdcSamplesRoundTo2 = 1;
             
             while numAdcSamples > numAdcSamplesRoundTo2:
