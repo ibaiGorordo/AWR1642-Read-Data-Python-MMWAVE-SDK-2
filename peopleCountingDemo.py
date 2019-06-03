@@ -101,9 +101,13 @@ def readAndParseData16xx(Dataport, configParameters):
     # Constants
     OBJ_STRUCT_SIZE_BYTES = 12;
     BYTE_VEC_ACC_MAX_SIZE = 2**15;
-    MMWDEMO_UART_MSG_DETECTED_POINTS = 1;
-    MMWDEMO_UART_MSG_RANGE_PROFILE   = 2;
+    MMWDEMO_UART_MSG_POINT_CLOUD_2D = 6;
+    MMWDEMO_UART_MSG_TARGET_LIST_2D = 7;
+    MMWDEMO_UART_MSG_TARGET_INDEX_2D = 7;
     maxBufferSize = 2**15;
+    tlvHeaderLengthInBytes = 8;
+    pointLengthInBytes = 16;
+    targetLengthInBytes = 68;
     magicWord = [2, 1, 4, 3, 6, 5, 8, 7]
     
     # Initialize variables
@@ -193,8 +197,6 @@ def readAndParseData16xx(Dataport, configParameters):
         checksum = np.matmul(byteBuffer[idX:idX+2,word)
         idX += 2
 
-        
-        '''
         # Read the TLV messages
         for tlvIdx in range(numTLVs):
             
@@ -208,64 +210,110 @@ def readAndParseData16xx(Dataport, configParameters):
             idX += 4
             
             # Read the data depending on the TLV message
-            if tlv_type == MMWDEMO_UART_MSG_DETECTED_POINTS:
-                            
+            if tlv_type == MMWDEMO_UART_MSG_POINT_CLOUD_2D:
+                                              
                 # word array to convert 4 bytes to a 16 bit number
-                word = [1, 2**8]
-                tlv_numObj = np.matmul(byteBuffer[idX:idX+2],word)
-                idX += 2
-                tlv_xyzQFormat = 2**np.matmul(byteBuffer[idX:idX+2],word)
-                idX += 2
+                word = [1, 2**8, 2**16, 2**24]
+                                        
+                # Calculate the number of detected points
+                numInputPoints = (tlv_length-tlvHeaderLengthInBytes)/pointLengthInBytes
                 
                 # Initialize the arrays
-                rangeIdx = np.zeros(tlv_numObj,dtype = 'int16')
-                dopplerIdx = np.zeros(tlv_numObj,dtype = 'int16')
-                peakVal = np.zeros(tlv_numObj,dtype = 'int16')
-                x = np.zeros(tlv_numObj,dtype = 'int16')
-                y = np.zeros(tlv_numObj,dtype = 'int16')
-                z = np.zeros(tlv_numObj,dtype = 'int16')
+                rangeVal = np.zeros(numInputPoints,dtype = np.float32)
+                azimuth = np.zeros(numInputPoints,dtype = np.float32)
+                dopplerVal = np.zeros(numInputPoints,dtype = np.float32)
+                snr = np.zeros(numInputPoints,dtype = np.float32)
                 
-                for objectNum in range(tlv_numObj):
+                for objectNum in range(numInputPoints):
                     
                     # Read the data for each object
-                    rangeIdx[objectNum] =  np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    dopplerIdx[objectNum] = np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    peakVal[objectNum] = np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    x[objectNum] = np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    y[objectNum] = np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    z[objectNum] = np.matmul(byteBuffer[idX:idX+2],word)
-                    idX += 2
-                    
-                # Make the necessary corrections and calculate the rest of the data
-                rangeVal = rangeIdx * configParameters["rangeIdxToMeters"]
-                dopplerIdx[dopplerIdx > (configParameters["numDopplerBins"]/2 - 1)] = dopplerIdx[dopplerIdx > (configParameters["numDopplerBins"]/2 - 1)] - 65535
-                dopplerVal = dopplerIdx * configParameters["dopplerResolutionMps"]
-                #x[x > 32767] = x[x > 32767] - 65536
-                #y[y > 32767] = y[y > 32767] - 65536
-                #z[z > 32767] = z[z > 32767] - 65536
-                x = x / tlv_xyzQFormat
-                y = y / tlv_xyzQFormat
-                z = z / tlv_xyzQFormat
-                
+                    rangeVal[objectNum] =  np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    azimuth[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    dopplerVal[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    snr[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+          
                 # Store the data in the detObj dictionary
-                detObj = {"numObj": tlv_numObj, "rangeIdx": rangeIdx, "range": rangeVal, "dopplerIdx": dopplerIdx, \
-                          "doppler": dopplerVal, "peakVal": peakVal, "x": x, "y": y, "z": z}
+                pointObj = {"numObj": numInputPoints, "range": rangeVal, "azimuth": azimuth, \
+                          "doppler": dopplerVal, "snr": snr}
                 
+                #dataOK = 1
+                
+            elif tlv_type == MMWDEMO_UART_MSG_TARGET_LIST_2D:
+                                        
+                # word array to convert 4 bytes to a 16 bit number
+                word = [1, 2**8, 2**16, 2**24]
+                                        
+                # Calculate the number of target points
+                numTargetPoints = (tlv_length-tlvHeaderLengthInBytes)/targetLengthInBytes
+                
+                # Initialize the arrays
+                targetId = np.zeros(numTargetPoints,dtype = np.uint32)
+                posX = np.zeros(numTargetPoints,dtype = np.float32)
+                posY = np.zeros(numTargetPoints,dtype = np.float32)
+                velX = np.zeros(numTargetPoints,dtype = np.float32)
+                velY = np.zeros(numTargetPoints,dtype = np.float32)
+                accX = np.zeros(numTargetPoints,dtype = np.float32)
+                accY = np.zeros(numTargetPoints,dtype = np.float32)                   
+                EC = np.zeros((3,3,numTargetPoints),dtype = np.float32) # Error covariance matrix
+                G = np.zeros(numTargetPoints,dtype = np.float32) # Gain             
+                
+                for objectNum in range(numTargetPoints):
+                    
+                    # Read the data for each object
+                    targetId[objectNum] =  np.matmul(byteBuffer[idX:idX+4],word)
+                    idX += 4
+                    posX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    posY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    velX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    velY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    accX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    accY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[0,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[0,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[0,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[1,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[1,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[1,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[2,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[2,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    EC[2,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                    G[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    idX += 4
+                                        
+                # Store the data in the detObj dictionary
+                targetObj = {"targetId": targetId, "posX": posX, "posY": posY, \
+                          "velX": velX, "velY": velY, "accX":accX, "accY":accY, \
+                           "EC": EC, "G": G}
+                                        
+            elif tlv_type == MMWDEMO_UART_MSG_TARGET_INDEX_2D:
+                # Calculate the length of the index message
+                numIndices = tlv_length-tlvHeaderLengthInBytes                      
+                indices = np.zeros(numIndices,dtype = np.uint8)   
+                indices = byteBuffer[idX:idX+numIndices]   
+                idX += numIndices                        
                 dataOK = 1
-
-                
-                #print(detObj['range'].mean())
-                
-            elif tlv_type == MMWDEMO_UART_MSG_RANGE_PROFILE:
-                idX += tlv_length
-                
-        '''
-                
+                                        
+                                        
+                            
         
         # Remove already processed data
         if idX > 0 and dataOK == 1:
@@ -280,7 +328,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 byteBufferLength = 0
                 
 
-    return dataOK, frameNumber, detObj
+    return dataOK, frameNumber, targetObj
 
 # ------------------------------------------------------------------
 
@@ -293,12 +341,12 @@ def update():
     y = []
       
     # Read and parse the received data
-    dataOk, frameNumber, detObj = readAndParseData16xx(Dataport, configParameters)
+    dataOk, frameNumber, targetObj = readAndParseData16xx(Dataport, configParameters)
     
     if dataOk:
         #print(detObj)
-        x = -detObj["x"]
-        y = detObj["y"]
+        x = -targetObj["posX"]
+        y = targetObj["posY"]
         
     s.setData(x,y)
     QtGui.QApplication.processEvents()
