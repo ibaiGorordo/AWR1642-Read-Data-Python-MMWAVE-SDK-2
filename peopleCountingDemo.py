@@ -114,7 +114,7 @@ def readAndParseData16xx(Dataport, configParameters):
     magicOK = 0 # Checks if magic number has been read
     dataOK = 0 # Checks if the data has been read correctly
     frameNumber = 0
-    detObj = {}
+    targetObj = {}
     
     readBuffer = Dataport.read(Dataport.in_waiting)
     byteVec = np.frombuffer(readBuffer, dtype = 'uint8')
