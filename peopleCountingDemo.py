@@ -40,7 +40,6 @@ def serialConfig(configFileName):
 # ------------------------------------------------------------------
 
 # Function to parse the data inside the configuration file
-'''
 def parseConfigFile(configFileName):
     configParameters = {} # Initialize an empty dictionary to store the configuration parameters
     
@@ -62,6 +61,7 @@ def parseConfigFile(configFileName):
             rampEndTime = float(splitWords[5])
             freqSlopeConst = float(splitWords[8])
             numAdcSamples = int(splitWords[10])
+            digOutSampleRate = int(splitWords[11])
             numAdcSamplesRoundTo2 = 1;
             
             while numAdcSamples > numAdcSamplesRoundTo2:
@@ -89,8 +89,7 @@ def parseConfigFile(configFileName):
     configParameters["maxRange"] = (300 * 0.9 * digOutSampleRate)/(2 * freqSlopeConst * 1e3)
     configParameters["maxVelocity"] = 3e8 / (4 * startFreq * 1e9 * (idleTime + rampEndTime) * 1e-6 * numTxAnt)
     
-    return configParameters
-'''    
+    return configParameters 
 # ------------------------------------------------------------------
 
 # Funtion to read and parse the incoming data
