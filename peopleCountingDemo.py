@@ -336,7 +336,7 @@ def readAndParseData16xx(Dataport, configParameters):
 def update():
      
     dataOk = 0
-    global detObj
+    global targetObj
     x = []
     y = []
       
@@ -344,7 +344,7 @@ def update():
     dataOk, frameNumber, targetObj = readAndParseData16xx(Dataport, configParameters)
     
     if dataOk:
-        #print(detObj)
+        #print(targetObj)
         x = -targetObj["posX"]
         y = targetObj["posY"]
         
@@ -377,7 +377,7 @@ s = p.plot([],[],pen=None,symbol='o')
     
    
 # Main loop 
-detObj = {}  
+targetObj = {}  
 frameData = {}    
 currentIndex = 0
 while True:
@@ -387,7 +387,7 @@ while True:
         
         if dataOk:
             # Store the current frame into frameData
-            frameData[currentIndex] = detObj
+            frameData[currentIndex] = targetObj
             currentIndex += 1
         
         time.sleep(0.033) # Sampling frequency of 30 Hz
