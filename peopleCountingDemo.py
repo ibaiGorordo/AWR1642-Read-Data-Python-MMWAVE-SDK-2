@@ -394,7 +394,7 @@ while True:
         
     # Stop the program and close everything if Ctrl + c is pressed
     except KeyboardInterrupt:
-        CLIport.write(('sensorStop\n').encode())
+        #CLIport.write(('sensorStop\n').encode())
         CLIport.close()
         Dataport.close()
         win.close()
