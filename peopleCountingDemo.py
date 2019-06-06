@@ -154,7 +154,7 @@ def readAndParseData16xx(Dataport, configParameters):
             word = [1, 2**8, 2**16, 2**24]
             
             # Read the total packet length
-            totalPacketLen = np.matmul(byteBuffer[12:12+4],word)
+            totalPacketLen = np.matmul(byteBuffer[20:20+4],word)
             
             # Check that all the packet has been read
             if (byteBufferLength >= totalPacketLen) and (byteBufferLength != 0):
