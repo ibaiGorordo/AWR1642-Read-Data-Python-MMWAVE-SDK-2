@@ -219,7 +219,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 word = [1, 2**8, 2**16, 2**24]
                                         
                 # Calculate the number of detected points
-                numInputPoints = (tlv_length-tlvHeaderLengthInBytes)/pointLengthInBytes
+                numInputPoints = (tlv_length-tlvHeaderLengthInBytes)//pointLengthInBytes
                 
                 # Initialize the arrays
                 rangeVal = np.zeros(numInputPoints,dtype = np.float32)
@@ -251,7 +251,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 word = [1, 2**8, 2**16, 2**24]
                                         
                 # Calculate the number of target points
-                numTargetPoints = (tlv_length-tlvHeaderLengthInBytes)/targetLengthInBytes
+                numTargetPoints = (tlv_length-tlvHeaderLengthInBytes)//targetLengthInBytes
                 
                 # Initialize the arrays
                 targetId = np.zeros(numTargetPoints,dtype = np.uint32)
