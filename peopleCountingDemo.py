@@ -192,6 +192,9 @@ def readAndParseData16xx(Dataport, configParameters):
         idX += 4
         trackProcessTime= np.matmul(byteBuffer[idX:idX+4],word)
         idX += 4
+
+        word = [1, 2**8]
+
         numTLVs = np.matmul(byteBuffer[idX:idX+2,word)
         idX += 2
         checksum = np.matmul(byteBuffer[idX:idX+2,word)
