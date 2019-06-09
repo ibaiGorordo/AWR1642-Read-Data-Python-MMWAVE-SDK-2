@@ -8,6 +8,8 @@ from pyqtgraph.Qt import QtGui
 configFileName = '1642config.cfg'
 CLIport = {}
 Dataport = {}
+byteBuffer = np.zeros(2**15,dtype = 'uint8')
+byteBufferLength = 0;
 
 
 # ------------------------------------------------------------------
@@ -94,9 +96,7 @@ def parseConfigFile(configFileName):
 
 # Funtion to read and parse the incoming data
 def readAndParseData16xx(Dataport, configParameters):
-    #global byteBuffer, byteBufferLength
-    byteBuffer = np.zeros(2**15,dtype = 'uint8')
-    byteBufferLength = 0;
+    global byteBuffer, byteBufferLength
     
     # Constants
     OBJ_STRUCT_SIZE_BYTES = 12;
@@ -127,35 +127,35 @@ def readAndParseData16xx(Dataport, configParameters):
         
     # Check that the buffer has some data
     if byteBufferLength > 16:
-        
+    
         # Check for all possible locations of the magic word
-        possibleLocs = np.where(byteVec == magicWord[0])[0]
-
+        possibleLocs = np.where(byteBuffer == magicWord[0])[0]
+    
         # Confirm that is the beginning of the magic word and store the index in startIdx
         startIdx = []
         for loc in possibleLocs:
-            check = byteVec[loc:loc+8]
+            check = byteBuffer[loc:loc + 8]
             if np.all(check == magicWord):
                 startIdx.append(loc)
-               
+    
         # Check that startIdx is not empty
         if startIdx:
-            
+    
             # Remove the data before the first start index
             if startIdx[0] > 0:
-                byteBuffer[:byteBufferLength-startIdx[0]] = byteBuffer[startIdx[0]:byteBufferLength]
+                byteBuffer[:byteBufferLength - startIdx[0]] = byteBuffer[startIdx[0]:byteBufferLength]
                 byteBufferLength = byteBufferLength - startIdx[0]
-                
+    
             # Check that there have no errors with the byte buffer length
             if byteBufferLength < 0:
                 byteBufferLength = 0
-                
+    
             # word array to convert 4 bytes to a 32 bit number
-            word = [1, 2**8, 2**16, 2**24]
-            
+            word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+    
             # Read the total packet length
-            totalPacketLen = np.matmul(byteBuffer[20:20+4],word)
-            
+            totalPacketLen = np.matmul(byteBuffer[20:20 + 4], word)
+    
             # Check that all the packet has been read
             if (byteBufferLength >= totalPacketLen) and (byteBufferLength != 0):
                 magicOK = 1
@@ -163,169 +163,158 @@ def readAndParseData16xx(Dataport, configParameters):
     # If magicOK is equal to 1 then process the message
     if magicOK:
         # word array to convert 4 bytes to a 32 bit number
-        word = [1, 2**8, 2**16, 2**24]
-        
+        word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+    
         # Initialize the pointer index
         idX = 0
-        
+    
         # Read the header
         # Read the header
-        magicNumber = byteBuffer[idX:idX+8]
+        magicNumber = byteBuffer[idX:idX + 8]
         idX += 8
-        version = format(np.matmul(byteBuffer[idX:idX+4],word),'x')
+        version = format(np.matmul(byteBuffer[idX:idX + 4], word), 'x')
         idX += 4
-        platform = format(np.matmul(byteBuffer[idX:idX+4],word),'x')
+        platform = format(np.matmul(byteBuffer[idX:idX + 4], word), 'x')
         idX += 4
-        timeStamp = np.matmul(byteBuffer[idX:idX+4],word)
+        timeStamp = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        totalPacketLen = np.matmul(byteBuffer[idX:idX+4],word)
+        totalPacketLen = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        frameNumber = np.matmul(byteBuffer[idX:idX+4],word)
+        frameNumber = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        subFrameNumber = np.matmul(byteBuffer[idX:idX+4],word)
+        subFrameNumber = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        chirpMargin = np.matmul(byteBuffer[idX:idX+4],word)
+        chirpMargin = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        frameMargin = np.matmul(byteBuffer[idX:idX+4],word)
+        frameMargin = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        uartSentTime = np.matmul(byteBuffer[idX:idX+4],word)
+        uartSentTime = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-        trackProcessTime= np.matmul(byteBuffer[idX:idX+4],word)
+        trackProcessTime = np.matmul(byteBuffer[idX:idX + 4], word)
         idX += 4
-
-        word = [1, 2**8]
-
-        numTLVs = np.matmul(byteBuffer[idX:idX+2,word)
+    
+        word = [1, 2 ** 8]
+    
+        numTLVs = np.matmul(byteBuffer[idX:idX + 2], word)
         idX += 2
-        checksum = np.matmul(byteBuffer[idX:idX+2,word)
+        checksum = np.matmul(byteBuffer[idX:idX + 2], word)
         idX += 2
-
+    
         # Read the TLV messages
         for tlvIdx in range(numTLVs):
-            
-            # word array to convert 4 bytes to a 32 bit number
-            word = [1, 2**8, 2**16, 2**24]
-
+        # word array to convert 4 bytes to a 32 bit number
+            word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+    
             # Check the header of the TLV message
-            tlv_type = np.matmul(byteBuffer[idX:idX+4],word)
+            tlv_type = np.matmul(byteBuffer[idX:idX + 4], word)
             idX += 4
-            tlv_length = np.matmul(byteBuffer[idX:idX+4],word)
+            tlv_length = np.matmul(byteBuffer[idX:idX + 4], word)
             idX += 4
-            
+    
             # Read the data depending on the TLV message
             if tlv_type == MMWDEMO_UART_MSG_POINT_CLOUD_2D:
-                                              
                 # word array to convert 4 bytes to a 16 bit number
-                word = [1, 2**8, 2**16, 2**24]
-                                        
+                word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+    
                 # Calculate the number of detected points
-                numInputPoints = (tlv_length-tlvHeaderLengthInBytes)//pointLengthInBytes
-                
+                numInputPoints = (tlv_length - tlvHeaderLengthInBytes) // pointLengthInBytes
+    
                 # Initialize the arrays
-                rangeVal = np.zeros(numInputPoints,dtype = np.float32)
-                azimuth = np.zeros(numInputPoints,dtype = np.float32)
-                dopplerVal = np.zeros(numInputPoints,dtype = np.float32)
-                snr = np.zeros(numInputPoints,dtype = np.float32)
-                
+                rangeVal = np.zeros(numInputPoints, dtype=np.float32)
+                azimuth = np.zeros(numInputPoints, dtype=np.float32)
+                dopplerVal = np.zeros(numInputPoints, dtype=np.float32)
+                snr = np.zeros(numInputPoints, dtype=np.float32)
+    
                 for objectNum in range(numInputPoints):
-                    
                     # Read the data for each object
-                    rangeVal[objectNum] =  np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    rangeVal[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    azimuth[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    azimuth[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    dopplerVal[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    dopplerVal[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    snr[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    snr[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-          
-                # Store the data in the detObj dictionary
-                pointObj = {"numObj": numInputPoints, "range": rangeVal, "azimuth": azimuth, \
-                          "doppler": dopplerVal, "snr": snr}
-                
-                #dataOK = 1
-                
+    
+                    # Store the data in the detObj dictionary
+                pointObj = {"numObj": numInputPoints, "range": rangeVal, "azimuth": azimuth,\
+                            "doppler": dopplerVal, "snr": snr}
+    
             elif tlv_type == MMWDEMO_UART_MSG_TARGET_LIST_2D:
-                                        
+    
                 # word array to convert 4 bytes to a 16 bit number
-                word = [1, 2**8, 2**16, 2**24]
-                                        
+                word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+    
                 # Calculate the number of target points
-                numTargetPoints = (tlv_length-tlvHeaderLengthInBytes)//targetLengthInBytes
-                
+                numTargetPoints = (tlv_length - tlvHeaderLengthInBytes) // targetLengthInBytes
+    
                 # Initialize the arrays
-                targetId = np.zeros(numTargetPoints,dtype = np.uint32)
-                posX = np.zeros(numTargetPoints,dtype = np.float32)
-                posY = np.zeros(numTargetPoints,dtype = np.float32)
-                velX = np.zeros(numTargetPoints,dtype = np.float32)
-                velY = np.zeros(numTargetPoints,dtype = np.float32)
-                accX = np.zeros(numTargetPoints,dtype = np.float32)
-                accY = np.zeros(numTargetPoints,dtype = np.float32)                   
-                EC = np.zeros((3,3,numTargetPoints),dtype = np.float32) # Error covariance matrix
-                G = np.zeros(numTargetPoints,dtype = np.float32) # Gain             
-                
+                targetId = np.zeros(numTargetPoints, dtype=np.uint32)
+                posX = np.zeros(numTargetPoints, dtype=np.float32)
+                posY = np.zeros(numTargetPoints, dtype=np.float32)
+                velX = np.zeros(numTargetPoints, dtype=np.float32)
+                velY = np.zeros(numTargetPoints, dtype=np.float32)
+                accX = np.zeros(numTargetPoints, dtype=np.float32)
+                accY = np.zeros(numTargetPoints, dtype=np.float32)
+                EC = np.zeros((3, 3, numTargetPoints), dtype=np.float32)  # Error covariance matrix
+                G = np.zeros(numTargetPoints, dtype=np.float32)  # Gain
+    
                 for objectNum in range(numTargetPoints):
-                    
-                    # Read the data for each object
-                    targetId[objectNum] =  np.matmul(byteBuffer[idX:idX+4],word)
+                # Read the data for each object
+                    targetId[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word)
                     idX += 4
-                    posX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    posX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    posY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    posY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    velX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    velX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    velY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    velY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    accX[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    accX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    accY[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    accY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[0,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[0, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[0,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[0, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[0,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[0, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[1,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[1, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[1,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[1, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[1,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[1, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[2,0,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[2, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[2,1,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[2, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    EC[2,2,objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    EC[2, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                    G[objectNum] = np.matmul(byteBuffer[idX:idX+4],word,dtype=np.float32)
+                    G[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
                     idX += 4
-                                        
+    
                 # Store the data in the detObj dictionary
                 targetObj = {"targetId": targetId, "posX": posX, "posY": posY, \
-                          "velX": velX, "velY": velY, "accX":accX, "accY":accY, \
-                           "EC": EC, "G": G}
-                                        
+                             "velX": velX, "velY": velY, "accX": accX, "accY": accY, \
+                             "EC": EC, "G": G}
+    
             elif tlv_type == MMWDEMO_UART_MSG_TARGET_INDEX_2D:
                 # Calculate the length of the index message
-                numIndices = tlv_length-tlvHeaderLengthInBytes                      
-                indices = np.zeros(numIndices,dtype = np.uint8)   
-                indices = byteBuffer[idX:idX+numIndices]   
-                idX += numIndices                        
+                numIndices = tlv_length - tlvHeaderLengthInBytes
+                indices = byteBuffer[idX:idX + numIndices]
+                idX += numIndices
                 dataOK = 1
-                                        
-                                        
-                            
-        
+    
+    
         # Remove already processed data
         if idX > 0 and dataOK == 1:
             shiftSize = idX
-            
-                
             byteBuffer[:byteBufferLength - shiftSize] = byteBuffer[shiftSize:byteBufferLength]
             byteBufferLength = byteBufferLength - shiftSize
-            
+    
             # Check that there are no errors with the buffer length
             if byteBufferLength < 0:
                 byteBufferLength = 0
