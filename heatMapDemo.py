@@ -111,6 +111,7 @@ def readAndParseData16xx(Dataport, configParameters):
     dataOK = 0 # Checks if the data has been read correctly
     frameNumber = 0
     detObj = {}
+    azimMapObject = {}
     
     readBuffer = Dataport.read(Dataport.in_waiting)
     byteVec = np.frombuffer(readBuffer, dtype = 'uint8')
@@ -302,9 +303,7 @@ def readAndParseData16xx(Dataport, configParameters):
 
                 rangeDoppler = np.reshape(rangeDoppler,(configParameters["numDopplerBins"],configParameters["numRangeBins"]))
                 rangeDoppler = np.concatenate((byteBuffer[(byteBufferLength + 1)//2:],byteBuffer[:(byteBufferLength + 1)//2]))
-
-                range = math.dotMultiply(math.range(0, Params.dataPath[subFrameNum].numRangeBins - 1, true), Params.dataPath[subFrameNum].rangeIdxToMeters);
-        
+                
                 # NOT FINISHED
                 
         
