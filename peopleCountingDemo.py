@@ -227,13 +227,13 @@ def readAndParseData16xx(Dataport, configParameters):
     
                 for objectNum in range(numInputPoints):
                     # Read the data for each object
-                    rangeVal[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    rangeVal[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    azimuth[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    azimuth[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    dopplerVal[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    dopplerVal[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    snr[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    snr[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
     
                     # Store the data in the detObj dictionary
@@ -263,37 +263,37 @@ def readAndParseData16xx(Dataport, configParameters):
                 # Read the data for each object
                     targetId[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word)
                     idX += 4
-                    posX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    posX[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    posY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    posY[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    velX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    velX[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    velY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    velY[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    accX[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    accX[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    accY[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    accY[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[0, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[0, 0, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[0, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[0, 1, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[0, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[0, 2, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[1, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[1, 0, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[1, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[1, 1, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[1, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[1, 2, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[2, 0, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[2, 0, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[2, 1, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[2, 1, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    EC[2, 2, objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    EC[2, 2, objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
-                    G[objectNum] = np.matmul(byteBuffer[idX:idX + 4], word, dtype=np.float32)
+                    G[objectNum] = byteBuffer[idX:idX + 4].view(dtype=np.float32)
                     idX += 4
     
                 # Store the data in the detObj dictionary
