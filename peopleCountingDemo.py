@@ -103,7 +103,7 @@ def readAndParseData16xx(Dataport, configParameters):
     BYTE_VEC_ACC_MAX_SIZE = 2**15;
     MMWDEMO_UART_MSG_POINT_CLOUD_2D = 6;
     MMWDEMO_UART_MSG_TARGET_LIST_2D = 7;
-    MMWDEMO_UART_MSG_TARGET_INDEX_2D = 7;
+    MMWDEMO_UART_MSG_TARGET_INDEX_2D = 8;
     maxBufferSize = 2**15;
     tlvHeaderLengthInBytes = 8;
     pointLengthInBytes = 16;
