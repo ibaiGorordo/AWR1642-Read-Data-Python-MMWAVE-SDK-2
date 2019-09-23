@@ -240,6 +240,8 @@ def readAndParseData16xx(Dataport, configParameters):
                     # Store the data in the detObj dictionary
                 pointObj = {"numObj": numInputPoints, "range": rangeVal, "azimuth": azimuth,\
                             "doppler": dopplerVal, "snr": snr}
+            
+                dataOK = 1
     
             elif tlv_type == MMWDEMO_UART_MSG_TARGET_LIST_2D:
     
