@@ -342,7 +342,7 @@ def update():
         #x = -targetObj["posX"]
         #y = targetObj["posY"]
         
-        x = pointObj["range"]*np.sin(pointObj["azimuth"])
+        x = -pointObj["range"]*np.sin(pointObj["azimuth"])
         y = pointObj["range"]*np.cos(pointObj["azimuth"])
         
     s.setData(x,y)
@@ -375,6 +375,7 @@ s = p.plot([],[],pen=None,symbol='o')
    
 # Main loop 
 targetObj = {}  
+pointObj = {}
 frameData = {}    
 currentIndex = 0
 while True:
