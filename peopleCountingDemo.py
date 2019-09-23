@@ -115,6 +115,7 @@ def readAndParseData16xx(Dataport, configParameters):
     dataOK = 0 # Checks if the data has been read correctly
     frameNumber = 0
     targetObj = {}
+    pointObj = {}
     
     readBuffer = Dataport.read(Dataport.in_waiting)
     byteVec = np.frombuffer(readBuffer, dtype = 'uint8')
@@ -320,7 +321,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 byteBufferLength = 0
                 
 
-    return dataOK, frameNumber, targetObj
+    return dataOK, frameNumber, targetObj, pointObj
 
 # ------------------------------------------------------------------
 
@@ -329,16 +330,20 @@ def update():
      
     dataOk = 0
     global targetObj
+    global pointObj
     x = []
     y = []
       
     # Read and parse the received data
-    dataOk, frameNumber, targetObj = readAndParseData16xx(Dataport, configParameters)
+    dataOk, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
     
     if dataOk:
         #print(targetObj)
-        x = -targetObj["posX"]
-        y = targetObj["posY"]
+        #x = -targetObj["posX"]
+        #y = targetObj["posY"]
+        
+        x = pointObj["range"]*np.sin(pointObj["azimuth"])
+        y = pointObj["range"]*np.cos(pointObj["azimuth"])
         
     s.setData(x,y)
     QtGui.QApplication.processEvents()
@@ -362,7 +367,7 @@ pg.setConfigOption('background','w')
 win = pg.GraphicsWindow(title="2D scatter plot")
 p = win.addPlot()
 p.setXRange(-0.5,0.5)
-p.setYRange(0,1.5)
+p.setYRange(0,6)
 p.setLabel('left',text = 'Y position (m)')
 p.setLabel('bottom', text= 'X position (m)')
 s = p.plot([],[],pen=None,symbol='o')
