@@ -258,7 +258,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 
         
         # Remove already processed data
-        if idX > 0 and dataOK == 1:
+        if idX > 0:
             shiftSize = idX
             
                 
