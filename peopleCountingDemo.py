@@ -313,7 +313,7 @@ def readAndParseData16xx(Dataport, configParameters):
     
     
         # Remove already processed data
-        if idX > 0 and dataOK == 1:
+        if idX > 0:
             shiftSize = idX
             byteBuffer[:byteBufferLength - shiftSize] = byteBuffer[shiftSize:byteBufferLength]
             byteBufferLength = byteBufferLength - shiftSize
@@ -394,7 +394,7 @@ while True:
         
     # Stop the program and close everything if Ctrl + c is pressed
     except KeyboardInterrupt:
-        #CLIport.write(('sensorStop\n').encode())
+        CLIport.write(('sensorStop\n').encode())
         CLIport.close()
         Dataport.close()
         win.close()
