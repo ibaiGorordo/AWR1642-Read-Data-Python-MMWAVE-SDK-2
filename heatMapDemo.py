@@ -2,9 +2,10 @@
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 # Change the configuration file name
-configFileName = '1642config.cfg'
+configFileName = 'heatMapConfig.cfg'
 CLIport = {}
 Dataport = {}
 byteBuffer = np.zeros(2**15,dtype = 'uint8')
@@ -21,12 +22,12 @@ def serialConfig(configFileName):
     # Open the serial ports for the configuration and the data ports
     
     # Raspberry pi
-    CLIport = serial.Serial('/dev/ttyACM0', 115200)
-    Dataport = serial.Serial('/dev/ttyACM1', 921600)
+    #CLIport = serial.Serial('/dev/ttyACM0', 115200)
+    #Dataport = serial.Serial('/dev/ttyACM1', 921600)
     
     # Windows
-    #CLIport = serial.Serial('COM3', 115200)
-    #Dataport = serial.Serial('COM4', 921600)
+    CLIport = serial.Serial('COM8', 115200)
+    Dataport = serial.Serial('COM9', 921600)
 
     # Read the configuration file and send it to the board
     config = [line.rstrip('\r\n') for line in open(configFileName)]
@@ -187,7 +188,7 @@ def readAndParseData16xx(Dataport, configParameters):
         
         # Read the TLV messages
         for tlvIdx in range(numTLVs):
-            
+
             # word array to convert 4 bytes to a 32 bit number
             word = [1, 2**8, 2**16, 2**24]
 
@@ -266,8 +267,8 @@ def readAndParseData16xx(Dataport, configParameters):
                 qcols = configParameters["numRangeBins"] 
                 NUM_ANGLE_BINS = 64
 
-                real = q[::4] + q[1::2] * 256
-                imaginary = q[2::4] + q[3::2] * 256
+                real = q[::4] + q[1::4] * 256
+                imaginary = q[2::4] + q[3::4] * 256
 
                 real = real.astype(np.int16)
                 imaginary = imaginary.astype(np.int16)
@@ -303,7 +304,9 @@ def readAndParseData16xx(Dataport, configParameters):
 
                 rangeDoppler = np.reshape(rangeDoppler,(configParameters["numDopplerBins"],configParameters["numRangeBins"]))
                 rangeDoppler = np.concatenate((byteBuffer[(byteBufferLength + 1)//2:],byteBuffer[:(byteBufferLength + 1)//2]))
-                
+
+                #range = math.dotMultiply(math.range(0, Params.dataPath[subFrameNum].numRangeBins - 1, true), Params.dataPath[subFrameNum].rangeIdxToMeters);
+        
                 # NOT FINISHED
                 
         
@@ -335,12 +338,12 @@ def update():
       
     # Read and parse the received data
     dataOk, frameNumber, detObj, azimMapObject = readAndParseData16xx(Dataport, configParameters)
-    
+
     if dataOk:
         plt.clf()
 
         ## 2D POSITION HEAT MAP
-        ax.contourf(azimMapObject["posX"],azimMapObject["posY"],azimMapObject["heatMap"])
+        plt.contourf(azimMapObject["posX"],azimMapObject["posY"],azimMapObject["heatMap"])
 
         ## ANGLE VS. RANGE HEATMAP
         #X,Y = np.meshgrid(azimMapObject["theta"], azimMapObject["range"])
@@ -383,7 +386,6 @@ while True:
         CLIport.write(('sensorStop\n').encode())
         CLIport.close()
         Dataport.close()
-        win.close()
         break
         
     
