@@ -251,14 +251,14 @@ def readAndParseData16xx(Dataport, configParameters):
                 
                 #print(detObj['range'].mean())
                 
-            elif tlv_type == MMWDEMO_UART_MSG_RANGE_PROFILE:
+            else:
                 idX += tlv_length
                 
         
                 
         
         # Remove already processed data
-        if idX > 0:
+        if idX > 0 and byteBufferLength > idX:
             shiftSize = idX
             
                 
