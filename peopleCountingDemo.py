@@ -221,8 +221,8 @@ def readAndParseData16xx(Dataport, configParameters):
                 numInputPoints = (tlv_length - tlvHeaderLengthInBytes) // pointLengthInBytes
     
                 # Initialize the arrays
-                rangeVal = np.zeros(numInputPoints, dtype=np.float32)
-                azimuth = np.zeros(numInputPoints, dtype=np.float32)
+                rangeVal = np.zeros(numInputPoints, dtype=object)
+                azimuth = np.zeros(numInputPoints, dtype=object)
                 dopplerVal = np.zeros(numInputPoints, dtype=np.float32)
                 snr = np.zeros(numInputPoints, dtype=np.float32)
     
