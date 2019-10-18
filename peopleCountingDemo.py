@@ -314,7 +314,7 @@ def readAndParseData16xx(Dataport, configParameters):
     
         # Remove already processed data
         if idX > 0:
-            shiftSize = idX
+            shiftSize = totalPacketLen
             byteBuffer[:byteBufferLength - shiftSize] = byteBuffer[shiftSize:byteBufferLength]
             byteBufferLength = byteBufferLength - shiftSize
     
