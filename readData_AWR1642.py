@@ -139,8 +139,9 @@ def readAndParseData16xx(Dataport, configParameters):
         if startIdx:
             
             # Remove the data before the first start index
-            if startIdx[0] > 0:
+            if startIdx[0] > 0 and startIdx[0] < byteBufferLength:
                 byteBuffer[:byteBufferLength-startIdx[0]] = byteBuffer[startIdx[0]:byteBufferLength]
+                byteBuffer[byteBufferLength-startIdx[0]:] = np.zeros(len(byteBuffer[byteBufferLength-startIdx[0]:]),dtype = 'uint8')
                 byteBufferLength = byteBufferLength - startIdx[0]
                 
             # Check that there have no errors with the byte buffer length
@@ -254,6 +255,7 @@ def readAndParseData16xx(Dataport, configParameters):
             shiftSize = totalPacketLen
                     
             byteBuffer[:byteBufferLength - shiftSize] = byteBuffer[shiftSize:byteBufferLength]
+            byteBuffer[byteBufferLength - shiftSize:] = np.zeros(len(byteBuffer[byteBufferLength - shiftSize:]),dtype = 'uint8')
             byteBufferLength = byteBufferLength - shiftSize
             
             # Check that there are no errors with the buffer length
@@ -276,13 +278,13 @@ def update():
     # Read and parse the received data
     dataOk, frameNumber, detObj = readAndParseData16xx(Dataport, configParameters)
     
-    if dataOk:
+    if dataOk and len(detObj["x"])>0:
         #print(detObj)
         x = -detObj["x"]
         y = detObj["y"]
         
-    s.setData(x,y)
-    QtGui.QApplication.processEvents()
+        s.setData(x,y)
+        QtGui.QApplication.processEvents()
     
     return dataOk
 
@@ -323,7 +325,7 @@ while True:
             frameData[currentIndex] = detObj
             currentIndex += 1
         
-        time.sleep(0.033) # Sampling frequency of 30 Hz
+        time.sleep(0.03) # Sampling frequency of 30 Hz
         
     # Stop the program and close everything if Ctrl + c is pressed
     except KeyboardInterrupt:
