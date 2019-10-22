@@ -310,7 +310,6 @@ def readAndParseData16xx(Dataport, configParameters):
                 numIndices = tlv_length - tlvHeaderLengthInBytes
                 indices = byteBuffer[idX:idX + numIndices]
                 idX += numIndices
-                dataOK = 1
     
     
         # Remove already processed data
@@ -341,7 +340,7 @@ def update():
     # Read and parse the received data
     dataOk, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
     
-    if dataOk and len(pointObj["range"])>0:
+    if dataOk:
         #print(targetObj)
         #x = -targetObj["posX"]
         #y = targetObj["posY"]
