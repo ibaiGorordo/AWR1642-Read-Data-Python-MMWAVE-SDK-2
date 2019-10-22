@@ -124,7 +124,6 @@ def readAndParseData16xx(Dataport, configParameters):
     # Check that the buffer is not full, and then add the data to the buffer
     if (byteBufferLength + byteCount) < maxBufferSize:
         byteBuffer[byteBufferLength:byteBufferLength + byteCount] = byteVec[:byteCount]
-        byteBuffer[byteBufferLength-startIdx[0]:] = np.zeros(len(byteBuffer[byteBufferLength-startIdx[0]:]),dtype = 'uint8')
         byteBufferLength = byteBufferLength + byteCount
         
     # Check that the buffer has some data
@@ -146,6 +145,7 @@ def readAndParseData16xx(Dataport, configParameters):
             # Remove the data before the first start index
             if startIdx[0] > 0 and startIdx[0] < byteBufferLength:
                 byteBuffer[:byteBufferLength - startIdx[0]] = byteBuffer[startIdx[0]:byteBufferLength]
+                byteBuffer[byteBufferLength-startIdx[0]:] = np.zeros(len(byteBuffer[byteBufferLength-startIdx[0]:]),dtype = 'uint8')
                 byteBufferLength = byteBufferLength - startIdx[0]
     
             # Check that there have no errors with the byte buffer length
