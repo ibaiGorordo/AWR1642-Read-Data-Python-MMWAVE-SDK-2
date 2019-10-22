@@ -341,7 +341,7 @@ def update():
     # Read and parse the received data
     dataOk, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
     
-    if dataOk and len(detObj["x"])>0:
+    if dataOk and len(pointObj["range"])>0:
         #print(targetObj)
         #x = -targetObj["posX"]
         #y = targetObj["posY"]
