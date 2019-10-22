@@ -206,12 +206,16 @@ def readAndParseData16xx(Dataport, configParameters):
         for tlvIdx in range(numTLVs):
         # word array to convert 4 bytes to a 32 bit number
             word = [1, 2 ** 8, 2 ** 16, 2 ** 24]
+            
+            # Initialize the tlv type
+            tlv_type = 0
     
-            # Check the header of the TLV message
-            tlv_type = np.matmul(byteBuffer[idX:idX + 4], word)
-            idX += 4
-            tlv_length = np.matmul(byteBuffer[idX:idX + 4], word)
-            idX += 4
+            try: 
+                # Check the header of the TLV message
+                tlv_type = np.matmul(byteBuffer[idX:idX + 4], word)
+                idX += 4
+                tlv_length = np.matmul(byteBuffer[idX:idX + 4], word)
+                idX += 4
     
             # Read the data depending on the TLV message
             if tlv_type == MMWDEMO_UART_MSG_POINT_CLOUD_2D:
