@@ -216,6 +216,8 @@ def readAndParseData16xx(Dataport, configParameters):
                 idX += 4
                 tlv_length = np.matmul(byteBuffer[idX:idX + 4], word)
                 idX += 4
+            except:
+                pass
     
             # Read the data depending on the TLV message
             if tlv_type == MMWDEMO_UART_MSG_POINT_CLOUD_2D:
