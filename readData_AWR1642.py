@@ -112,6 +112,7 @@ def readAndParseData16xx(Dataport, configParameters):
     dataOK = 0 # Checks if the data has been read correctly
     frameNumber = 0
     detObj = {}
+    tlv_type = 0
     
     readBuffer = Dataport.read(Dataport.in_waiting)
     byteVec = np.frombuffer(readBuffer, dtype = 'uint8')
@@ -193,10 +194,13 @@ def readAndParseData16xx(Dataport, configParameters):
             word = [1, 2**8, 2**16, 2**24]
 
             # Check the header of the TLV message
-            tlv_type = np.matmul(byteBuffer[idX:idX+4],word)
-            idX += 4
-            tlv_length = np.matmul(byteBuffer[idX:idX+4],word)
-            idX += 4
+            try:
+                tlv_type = np.matmul(byteBuffer[idX:idX+4],word)
+                idX += 4
+                tlv_length = np.matmul(byteBuffer[idX:idX+4],word)
+                idX += 4
+            except:
+                pass
             
             # Read the data depending on the TLV message
             if tlv_type == MMWDEMO_UART_MSG_DETECTED_POINTS:
