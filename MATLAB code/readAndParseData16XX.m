@@ -3,7 +3,10 @@ function [dataOk, frameNumber, detObj] = readAndParseData16XX(DATA_sphandle, Con
     BYTE_VEC_ACC_MAX_SIZE = 2^15;
     MMWDEMO_UART_MSG_DETECTED_POINTS = 1;
     MMWDEMO_UART_MSG_RANGE_PROFILE   = 2;
+    MMWDEMO_UART_MSG_NOISE_PROFILE   = 3;
+    MMWDEMO_UART_MSG_AZIMUT_STATIC_HEAT_MAP = 4;
     maxBufferSize = 2^15;
+    NUM_ANGLE_BINS = 64;
     
     detObj = [];
     frameNumber = 0;
@@ -156,12 +159,37 @@ function [dataOk, frameNumber, detObj] = readAndParseData16XX(DATA_sphandle, Con
                     rp = byteBuffer(idx+(1:tlv.length));
                     idx = idx + tlv.length;
                     rp=rp(1:2:end)+rp(2:2:end)*256;
+                    
+                case MMWDEMO_UART_MSG_AZIMUT_STATIC_HEAT_MAP
+                    numBytes = 2 * 4 * ConfigParameters.numRangeBins * 4;               
+                    q = byteBuffer(idx+(1:numBytes));
+                    idx = idx + numBytes;
+                    q = q(1:2:end)+q(2:2:end)*2^8;
+                    q(q>32767) = q(q>32767) - 65536;
+                    q = q(1:2:end)+1j*q(2:2:end);
+                    q = reshape(q, 2*4, ConfigParameters.numRangeBins);
+                    Q = fft(q, NUM_ANGLE_BINS);  % column based NUM_ANGLE_BINS-point fft, padded with zeros
+                    QQ=fftshift(abs(Q),1);
+                    QQ=QQ.';
+                    
+                    QQ=QQ(:,2:end);
+                    QQ=fliplr(QQ);
+                    theta = asind((-NUM_ANGLE_BINS/2+1 : NUM_ANGLE_BINS/2-1)'*(2/NUM_ANGLE_BINS));
+                    range = (0:ConfigParameters.numRangeBins-1) * ConfigParameters.rangeIdxToMeters;
+                    
+                    
+%                     imagesc(theta, range, QQ, [0,max(QQ(:))]);
+%                     set(gca,'YDir','normal')
+%                     xlabel('Azimuth Angle [degree]');
+%                     ylabel('Range [m]');
+                    
+                    
             end
             
         end
         %Remove processed data
         if idx > 0
-            shiftSize = idx;
+            shiftSize = Header.totalPacketLen;
             byteBuffer(1: byteBufferLength-shiftSize) = byteBuffer(shiftSize+1:byteBufferLength);
             byteBufferLength = byteBufferLength - shiftSize;
             if byteBufferLength < 0
@@ -178,4 +206,5 @@ function [dataOk, frameNumber, detObj] = readAndParseData16XX(DATA_sphandle, Con
     end
     
                         
+                                    
                     
