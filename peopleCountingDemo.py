@@ -113,6 +113,7 @@ def readAndParseData16xx(Dataport, configParameters):
     # Initialize variables
     magicOK = 0 # Checks if magic number has been read
     dataOK = 0 # Checks if the data has been read correctly
+    targetDetected = 0 # Checks if a person has been detected
     frameNumber = 0
     targetObj = {}
     pointObj = {}
@@ -310,6 +311,8 @@ def readAndParseData16xx(Dataport, configParameters):
                 targetObj = {"targetId": targetId, "posX": posX, "posY": posY, \
                              "velX": velX, "velY": velY, "accX": accX, "accY": accY, \
                              "EC": EC, "G": G}
+                
+                targetDetected = 1
     
             elif tlv_type == MMWDEMO_UART_MSG_TARGET_INDEX_2D:
                 # Calculate the length of the index message
@@ -330,7 +333,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 byteBufferLength = 0
                 
 
-    return dataOK, frameNumber, targetObj, pointObj
+    return dataOK, targetDetected, frameNumber, targetObj, pointObj
 
 # ------------------------------------------------------------------
 
@@ -338,19 +341,21 @@ def readAndParseData16xx(Dataport, configParameters):
 def update():
      
     dataOk = 0
+    targetDetected = 0
     global targetObj
     global pointObj
     x = []
     y = []
       
     # Read and parse the received data
-    dataOk, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
+    dataOk, targetDetected, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
     
-    if dataOk:
+    #if targetDetected:
         #print(targetObj)
         #x = -targetObj["posX"]
         #y = targetObj["posY"]
         
+    if dataOk: 
         x = -pointObj["range"]*np.sin(pointObj["azimuth"])
         y = pointObj["range"]*np.cos(pointObj["azimuth"])
         
