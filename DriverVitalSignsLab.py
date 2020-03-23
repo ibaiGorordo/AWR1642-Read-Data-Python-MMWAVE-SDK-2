@@ -158,7 +158,7 @@ def readAndParseVitalSigns(Dataport, configParameters):
     magicOK = 0 # Checks if magic number has been read
     dataOK = 0 # Checks if the data has been read correctly
     frameNumber = 0
-    detObj = {}
+    vitalSignsObj = {}
     tlv_type = 0
     
     readBuffer = Dataport.read(Dataport.in_waiting)
