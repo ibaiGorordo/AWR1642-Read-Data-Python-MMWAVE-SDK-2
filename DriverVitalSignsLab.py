@@ -349,7 +349,7 @@ def update():
     global vitalSignsObj, heartRateMat, frameMat
       
     # Read and parse the received data
-    dataOk, frameNumber, vitalSignsObj = readAndParseVitalSigns(sliceData, configParameters)
+    dataOk, frameNumber, vitalSignsObj = readAndParseVitalSigns(Dataport, configParameters)
     
     if dataOk:
         #print(vitalSignsObj)
