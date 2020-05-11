@@ -5,7 +5,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 
 # Change the configuration file name
-configFileName = '1642config.cfg'
+configFileName = 'mmw_pplcount_demo_default.cfg'
 CLIport = {}
 Dataport = {}
 byteBuffer = np.zeros(2**15,dtype = 'uint8')
