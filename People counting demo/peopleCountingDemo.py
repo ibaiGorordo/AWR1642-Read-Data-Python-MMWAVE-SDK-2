@@ -352,6 +352,7 @@ def update():
     
     #if targetDetected:
         #print(targetObj)
+        #print(targetObj["numTargets"])
         #x = -targetObj["posX"]
         #y = targetObj["posY"]
         
