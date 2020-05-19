@@ -310,7 +310,7 @@ def readAndParseData16xx(Dataport, configParameters):
                 # Store the data in the detObj dictionary
                 targetObj = {"targetId": targetId, "posX": posX, "posY": posY, \
                              "velX": velX, "velY": velY, "accX": accX, "accY": accY, \
-                             "EC": EC, "G": G}
+                             "EC": EC, "G": G, "numTargets":numTargetPoints}
                 
                 targetDetected = 1
     
