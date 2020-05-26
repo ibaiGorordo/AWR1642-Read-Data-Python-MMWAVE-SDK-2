@@ -350,17 +350,19 @@ def update():
     # Read and parse the received data
     dataOk, targetDetected, frameNumber, targetObj, pointObj = readAndParseData16xx(Dataport, configParameters)
     
-    #if targetDetected:
-        #print(targetObj)
-        #print(targetObj["numTargets"])
-        #x = -targetObj["posX"]
-        #y = targetObj["posY"]
+    if targetDetected:
+        print(targetObj)
+        print(targetObj["numTargets"])
+        x = -targetObj["posX"]
+        y = targetObj["posY"]
+        s2.setData(x,y)
+        QtGui.QApplication.processEvents()
         
     if dataOk: 
         x = -pointObj["range"]*np.sin(pointObj["azimuth"])
         y = pointObj["range"]*np.cos(pointObj["azimuth"])
         
-        s.setData(x,y)
+        s1.setData(x,y)
         QtGui.QApplication.processEvents()
     
     return dataOk
@@ -385,7 +387,8 @@ p.setXRange(-0.5,0.5)
 p.setYRange(0,6)
 p.setLabel('left',text = 'Y position (m)')
 p.setLabel('bottom', text= 'X position (m)')
-s = p.plot([],[],pen=None,symbol='o')
+s1 = p.plot([],[],pen=None,symbol='o')
+s2 = p.plot([],[],pen=(0,0,255),symbol='star')
     
    
 # Main loop 
