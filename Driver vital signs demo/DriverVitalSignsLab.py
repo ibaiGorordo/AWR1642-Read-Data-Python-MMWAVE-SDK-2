@@ -326,7 +326,7 @@ def readAndParseVitalSigns(Dataport, configParameters):
                 dataOK = 1
 
         # Remove already processed data
-        if idX > 0 and byteBufferLength > idX:
+        if idX > 0 and byteBufferLength >= idX:
             shiftSize = totalPayloadSize_bytes
                     
             byteBuffer[:byteBufferLength - shiftSize] = byteBuffer[shiftSize:byteBufferLength]
